@@ -1,0 +1,181 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <type name="Magebit\Mcp\Model\Tool\ToolRegistry">
+        <arguments>
+            <argument name="tools" xsi:type="array">
+                <item name="customer.customer.list" xsi:type="object">
+                    Magebit\McpCustomerTools\Tool\Customer\Customer\CustomerList
+                </item>
+                <item name="customer.customer.get" xsi:type="object">
+                    Magebit\McpCustomerTools\Tool\Customer\Customer\CustomerGet
+                </item>
+                <item name="customer.customer.create" xsi:type="object">
+                    Magebit\McpCustomerTools\Tool\Customer\Customer\CustomerCreate
+                </item>
+                <item name="customer.customer.update" xsi:type="object">
+                    Magebit\McpCustomerTools\Tool\Customer\Customer\CustomerUpdate
+                </item>
+                <item name="customer.customer.delete" xsi:type="object">
+                    Magebit\McpCustomerTools\Tool\Customer\Customer\CustomerDelete
+                </item>
+
+                <item name="customer.address.list" xsi:type="object">
+                    Magebit\McpCustomerTools\Tool\Customer\Address\AddressList
+                </item>
+                <item name="customer.address.get" xsi:type="object">
+                    Magebit\McpCustomerTools\Tool\Customer\Address\AddressGet
+                </item>
+                <item name="customer.address.create" xsi:type="object">
+                    Magebit\McpCustomerTools\Tool\Customer\Address\AddressCreate
+                </item>
+                <item name="customer.address.update" xsi:type="object">
+                    Magebit\McpCustomerTools\Tool\Customer\Address\AddressUpdate
+                </item>
+                <item name="customer.address.delete" xsi:type="object">
+                    Magebit\McpCustomerTools\Tool\Customer\Address\AddressDelete
+                </item>
+
+                <item name="customer.group.list" xsi:type="object">
+                    Magebit\McpCustomerTools\Tool\Customer\Group\GroupList
+                </item>
+                <item name="customer.group.get" xsi:type="object">
+                    Magebit\McpCustomerTools\Tool\Customer\Group\GroupGet
+                </item>
+
+                <item name="customer.account.confirmation_status" xsi:type="object">
+                    Magebit\McpCustomerTools\Tool\Customer\Account\ConfirmationStatus
+                </item>
+                <item name="customer.account.reset_password" xsi:type="object">
+                    Magebit\McpCustomerTools\Tool\Customer\Account\ResetPassword
+                </item>
+                <item name="customer.account.resend_confirmation" xsi:type="object">
+                    Magebit\McpCustomerTools\Tool\Customer\Account\ResendConfirmation
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Customer field resolvers — full set on Get, lean set on List
+         (addresses are too heavy for paginated responses). -->
+    <type name="Magebit\McpCustomerTools\Tool\Customer\Customer\CustomerGet">
+        <arguments>
+            <argument name="fieldResolvers" xsi:type="array">
+                <item name="identity" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Customer\IdentityResolver
+                </item>
+                <item name="name" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Customer\NameResolver
+                </item>
+                <item name="profile" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Customer\ProfileResolver
+                </item>
+                <item name="scope" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Customer\ScopeResolver
+                </item>
+                <item name="addresses" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Customer\AddressesResolver
+                </item>
+                <item name="defaults" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Customer\DefaultsResolver
+                </item>
+                <item name="custom_attributes" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Customer\CustomAttributesResolver
+                </item>
+                <item name="extension_attributes" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Customer\ExtensionAttributesResolver
+                </item>
+                <item name="timestamps" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Customer\TimestampsResolver
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magebit\McpCustomerTools\Tool\Customer\Customer\CustomerList">
+        <arguments>
+            <argument name="fieldResolvers" xsi:type="array">
+                <item name="identity" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Customer\IdentityResolver
+                </item>
+                <item name="scope" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Customer\ScopeResolver
+                </item>
+                <item name="timestamps" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Customer\TimestampsResolver
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- Address field resolvers — full set everywhere (addresses are small
+         enough that per-row detail is fine for list responses too). -->
+    <type name="Magebit\McpCustomerTools\Tool\Customer\Address\AddressGet">
+        <arguments>
+            <argument name="fieldResolvers" xsi:type="array">
+                <item name="identity" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Address\IdentityResolver
+                </item>
+                <item name="name" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Address\NameResolver
+                </item>
+                <item name="location" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Address\LocationResolver
+                </item>
+                <item name="contact" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Address\ContactResolver
+                </item>
+                <item name="flags" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Address\FlagsResolver
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magebit\McpCustomerTools\Tool\Customer\Address\AddressList">
+        <arguments>
+            <argument name="fieldResolvers" xsi:type="array">
+                <item name="identity" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Address\IdentityResolver
+                </item>
+                <item name="name" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Address\NameResolver
+                </item>
+                <item name="location" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Address\LocationResolver
+                </item>
+                <item name="flags" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Address\FlagsResolver
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magebit\McpCustomerTools\Tool\Customer\Group\GroupGet">
+        <arguments>
+            <argument name="fieldResolvers" xsi:type="array">
+                <item name="identity" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Group\IdentityResolver
+                </item>
+                <item name="tax" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Group\TaxResolver
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+    <type name="Magebit\McpCustomerTools\Tool\Customer\Group\GroupList">
+        <arguments>
+            <argument name="fieldResolvers" xsi:type="array">
+                <item name="identity" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Group\IdentityResolver
+                </item>
+                <item name="tax" xsi:type="object">
+                    Magebit\McpCustomerTools\Model\FieldResolver\Group\TaxResolver
+                </item>
+            </argument>
+        </arguments>
+    </type>
+
+</config>
