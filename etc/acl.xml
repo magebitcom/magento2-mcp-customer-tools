@@ -5,49 +5,49 @@
         <resources>
             <resource id="Magento_Backend::admin">
                 <resource id="Magento_Backend::system">
-                    <resource id="Magebit_McpCustomerTools::mcp"
-                              title="MCP Customer Tools"
-                              sortOrder="201">
+                    <resource id="Magebit_Mcp::mcp">
+                        <resource id="Magebit_Mcp::tools">
 
-                        <!-- Read tools -->
-                        <resource id="Magebit_McpCustomerTools::tool_customer_customer_list"
-                                  title="Tool: List Customers" sortOrder="100"/>
-                        <resource id="Magebit_McpCustomerTools::tool_customer_customer_get"
-                                  title="Tool: Get Customer" sortOrder="101"/>
+                            <!-- Read tools -->
+                            <resource id="Magebit_McpCustomerTools::tool_customer_customer_list"
+                                      title="Tool: List Customers" sortOrder="100"/>
+                            <resource id="Magebit_McpCustomerTools::tool_customer_customer_get"
+                                      title="Tool: Get Customer" sortOrder="101"/>
 
-                        <resource id="Magebit_McpCustomerTools::tool_customer_address_list"
-                                  title="Tool: List Customer Addresses" sortOrder="110"/>
-                        <resource id="Magebit_McpCustomerTools::tool_customer_address_get"
-                                  title="Tool: Get Customer Address" sortOrder="111"/>
+                            <resource id="Magebit_McpCustomerTools::tool_customer_address_list"
+                                      title="Tool: List Customer Addresses" sortOrder="110"/>
+                            <resource id="Magebit_McpCustomerTools::tool_customer_address_get"
+                                      title="Tool: Get Customer Address" sortOrder="111"/>
 
-                        <resource id="Magebit_McpCustomerTools::tool_customer_group_list"
-                                  title="Tool: List Customer Groups" sortOrder="120"/>
-                        <resource id="Magebit_McpCustomerTools::tool_customer_group_get"
-                                  title="Tool: Get Customer Group" sortOrder="121"/>
+                            <resource id="Magebit_McpCustomerTools::tool_customer_group_list"
+                                      title="Tool: List Customer Groups" sortOrder="120"/>
+                            <resource id="Magebit_McpCustomerTools::tool_customer_group_get"
+                                      title="Tool: Get Customer Group" sortOrder="121"/>
 
-                        <resource id="Magebit_McpCustomerTools::tool_customer_account_confirmation_status"
-                                  title="Tool: Get Account Confirmation Status" sortOrder="130"/>
+                            <resource id="Magebit_McpCustomerTools::tool_customer_account_confirmation_status"
+                                      title="Tool: Get Account Confirmation Status" sortOrder="130"/>
 
-                        <!-- Write tools -->
-                        <resource id="Magebit_McpCustomerTools::tool_customer_customer_create"
-                                  title="Tool: Create Customer" sortOrder="200"/>
-                        <resource id="Magebit_McpCustomerTools::tool_customer_customer_update"
-                                  title="Tool: Update Customer" sortOrder="201"/>
-                        <resource id="Magebit_McpCustomerTools::tool_customer_customer_delete"
-                                  title="Tool: Delete Customer" sortOrder="202"/>
+                            <!-- Write tools -->
+                            <resource id="Magebit_McpCustomerTools::tool_customer_customer_create"
+                                      title="Tool: Create Customer" sortOrder="200"/>
+                            <resource id="Magebit_McpCustomerTools::tool_customer_customer_update"
+                                      title="Tool: Update Customer" sortOrder="201"/>
+                            <resource id="Magebit_McpCustomerTools::tool_customer_customer_delete"
+                                      title="Tool: Delete Customer" sortOrder="202"/>
 
-                        <resource id="Magebit_McpCustomerTools::tool_customer_address_create"
-                                  title="Tool: Create Customer Address" sortOrder="210"/>
-                        <resource id="Magebit_McpCustomerTools::tool_customer_address_update"
-                                  title="Tool: Update Customer Address" sortOrder="211"/>
-                        <resource id="Magebit_McpCustomerTools::tool_customer_address_delete"
-                                  title="Tool: Delete Customer Address" sortOrder="212"/>
+                            <resource id="Magebit_McpCustomerTools::tool_customer_address_create"
+                                      title="Tool: Create Customer Address" sortOrder="210"/>
+                            <resource id="Magebit_McpCustomerTools::tool_customer_address_update"
+                                      title="Tool: Update Customer Address" sortOrder="211"/>
+                            <resource id="Magebit_McpCustomerTools::tool_customer_address_delete"
+                                      title="Tool: Delete Customer Address" sortOrder="212"/>
 
-                        <resource id="Magebit_McpCustomerTools::tool_customer_account_reset_password"
-                                  title="Tool: Initiate Password Reset" sortOrder="220"/>
-                        <resource id="Magebit_McpCustomerTools::tool_customer_account_resend_confirmation"
-                                  title="Tool: Resend Account Confirmation" sortOrder="221"/>
+                            <resource id="Magebit_McpCustomerTools::tool_customer_account_reset_password"
+                                      title="Tool: Initiate Password Reset" sortOrder="220"/>
+                            <resource id="Magebit_McpCustomerTools::tool_customer_account_resend_confirmation"
+                                      title="Tool: Resend Account Confirmation" sortOrder="221"/>
 
+                        </resource>
                     </resource>
                 </resource>
             </resource>
