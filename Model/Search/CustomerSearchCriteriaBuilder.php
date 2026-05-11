@@ -257,7 +257,8 @@ class CustomerSearchCriteriaBuilder
             throw new LocalizedException(__('"sort_dir" must be "asc" or "desc".'));
         }
 
-        $this->sortBuilder->setField($sortBy);
+        $column = $sortBy === CustomerInterface::ID ? 'entity_id' : $sortBy;
+        $this->sortBuilder->setField($column);
         $this->sortBuilder->setDirection($dir === 'asc' ? SortOrder::SORT_ASC : SortOrder::SORT_DESC);
         $this->criteriaBuilder->addSortOrder($this->sortBuilder->create());
     }

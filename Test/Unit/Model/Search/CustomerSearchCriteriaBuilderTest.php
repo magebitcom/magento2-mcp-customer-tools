@@ -55,6 +55,30 @@ class CustomerSearchCriteriaBuilderTest extends TestCase
         $this->builder()->build([]);
     }
 
+    public function testSortByIdMapsToEntityIdColumn(): void
+    {
+        $this->sortBuilder->expects($this->once())->method('setField')->with('entity_id');
+        $this->sortBuilder->expects($this->once())->method('setDirection')->with(SortOrder::SORT_DESC);
+
+        $this->builder()->build(['sort_by' => 'id', 'sort_dir' => 'desc']);
+    }
+
+    public function testSortByIdAscMapsToEntityIdColumn(): void
+    {
+        $this->sortBuilder->expects($this->once())->method('setField')->with('entity_id');
+        $this->sortBuilder->expects($this->once())->method('setDirection')->with(SortOrder::SORT_ASC);
+
+        $this->builder()->build(['sort_by' => 'id', 'sort_dir' => 'asc']);
+    }
+
+    public function testSortByEmailPassesThroughUnchanged(): void
+    {
+        $this->sortBuilder->expects($this->once())->method('setField')->with('email');
+        $this->sortBuilder->expects($this->once())->method('setDirection')->with(SortOrder::SORT_ASC);
+
+        $this->builder()->build(['sort_by' => 'email', 'sort_dir' => 'asc']);
+    }
+
     public function testExactEmailAddsEqualsFilter(): void
     {
         $this->criteriaBuilder->expects($this->atLeastOnce())
