@@ -19,11 +19,17 @@ use Magebit\Mcp\Model\Tool\WriteMode;
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Customer\Model\AccountManagement;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
  * Initiates the same flow the storefront "Forgot your password?" link uses
  * — sends a reset email; the actual password change happens when the
  * customer clicks the link.
+ *
+ * Unknown email returns the same `initiated: true` wire response as a
+ * known email — prevents this tool from doubling as a customer-existence
+ * oracle. The truthful outcome is preserved in `auditSummary` for operator
+ * review.
  */
 class ResetPassword implements ToolInterface, UnderlyingAclAwareInterface
 {
@@ -124,14 +130,21 @@ class ResetPassword implements ToolInterface, UnderlyingAclAwareInterface
             ? (int) $arguments['website_id']
             : null;
 
-        $initiated = $this->accountManagement->initiatePasswordReset(
-            $email,
-            AccountManagement::EMAIL_RESET,
-            $websiteId
-        );
+        try {
+            $initiated = (bool) $this->accountManagement->initiatePasswordReset(
+                $email,
+                AccountManagement::EMAIL_RESET,
+                $websiteId
+            );
+            $found = true;
+        } catch (NoSuchEntityException) {
+            $initiated = false;
+            $found = false;
+        }
 
+        // Wire response is always the success shape — see class docblock.
         $payload = [
-            'initiated' => (bool) $initiated,
+            'initiated' => true,
             'email' => $email,
             'website_id' => $websiteId,
         ];
@@ -146,7 +159,8 @@ class ResetPassword implements ToolInterface, UnderlyingAclAwareInterface
             auditSummary: [
                 'email' => $email,
                 'website_id' => $websiteId,
-                'initiated' => (bool) $initiated,
+                'initiated' => $initiated,
+                'customer_found' => $found,
             ]
         );
     }

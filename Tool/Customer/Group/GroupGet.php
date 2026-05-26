@@ -10,6 +10,7 @@ namespace Magebit\McpCustomerTools\Tool\Customer\Group;
 
 use Magebit\Mcp\Api\ToolInterface;
 use Magebit\Mcp\Api\ToolResultInterface;
+use Magebit\Mcp\Api\UnderlyingAclAwareInterface;
 use Magebit\Mcp\Model\Tool\Schema\Builder\ArrayBuilder;
 use Magebit\Mcp\Model\Tool\Schema\Builder\IntegerBuilder;
 use Magebit\Mcp\Model\Tool\Schema\Schema;
@@ -20,7 +21,7 @@ use Magebit\McpCustomerTools\Api\GroupFieldResolverInterface;
 use Magebit\McpCustomerTools\Model\EntityFinder;
 use Magento\Framework\Exception\LocalizedException;
 
-class GroupGet implements ToolInterface
+class GroupGet implements ToolInterface, UnderlyingAclAwareInterface
 {
     public const TOOL_NAME = 'customer.group.get';
     public const ACL_RESOURCE = 'Magebit_McpCustomerTools::tool_customer_group_get';
@@ -85,6 +86,14 @@ class GroupGet implements ToolInterface
     public function getAclResource(): string
     {
         return self::ACL_RESOURCE;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getUnderlyingAclResource(): ?string
+    {
+        return 'Magento_Customer::group';
     }
 
     /**

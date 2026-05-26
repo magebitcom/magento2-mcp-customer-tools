@@ -18,10 +18,17 @@ use Magebit\Mcp\Model\Tool\ToolResult;
 use Magebit\Mcp\Model\Tool\WriteMode;
 use Magento\Customer\Api\AccountManagementInterface;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 /**
+ * Unknown email returns the same `sent: true` wire response as a known
+ * email — prevents this tool from doubling as a customer-existence oracle.
+ * The truthful outcome is preserved in `auditSummary` for operator review.
+ *
  * Magento raises `InvalidTransitionException` when the account is already
- * confirmed; that is allowed to bubble through as a tool error.
+ * confirmed; that is allowed to bubble through as a tool error (the admin
+ * caller is expected to know whether they're targeting an unconfirmed
+ * account).
  */
 class ResendConfirmation implements ToolInterface, UnderlyingAclAwareInterface
 {
@@ -121,10 +128,17 @@ class ResendConfirmation implements ToolInterface, UnderlyingAclAwareInterface
             ? (int) $arguments['website_id']
             : 0;
 
-        $sent = $this->accountManagement->resendConfirmation($email, $websiteId);
+        try {
+            $sent = (bool) $this->accountManagement->resendConfirmation($email, $websiteId);
+            $found = true;
+        } catch (NoSuchEntityException) {
+            $sent = false;
+            $found = false;
+        }
 
+        // Wire response is always the success shape — see class docblock.
         $payload = [
-            'sent' => (bool) $sent,
+            'sent' => true,
             'email' => $email,
             'website_id' => $websiteId,
         ];
@@ -139,7 +153,8 @@ class ResendConfirmation implements ToolInterface, UnderlyingAclAwareInterface
             auditSummary: [
                 'email' => $email,
                 'website_id' => $websiteId,
-                'sent' => (bool) $sent,
+                'sent' => $sent,
+                'customer_found' => $found,
             ]
         );
     }

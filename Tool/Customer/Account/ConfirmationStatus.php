@@ -10,6 +10,7 @@ namespace Magebit\McpCustomerTools\Tool\Customer\Account;
 
 use Magebit\Mcp\Api\ToolInterface;
 use Magebit\Mcp\Api\ToolResultInterface;
+use Magebit\Mcp\Api\UnderlyingAclAwareInterface;
 use Magebit\Mcp\Model\Tool\Schema\Builder\IntegerBuilder;
 use Magebit\Mcp\Model\Tool\Schema\Builder\StringBuilder;
 use Magebit\Mcp\Model\Tool\Schema\Schema;
@@ -22,8 +23,14 @@ use Magento\Framework\Exception\LocalizedException;
 /**
  * Returns one of {@see AccountManagementInterface::ACCOUNT_CONFIRMED},
  * `ACCOUNT_CONFIRMATION_REQUIRED`, or `ACCOUNT_CONFIRMATION_NOT_REQUIRED`.
+ *
+ * Unknown id/email collapses to `ACCOUNT_CONFIRMATION_REQUIRED` so the wire
+ * response is indistinguishable from an existing-but-unconfirmed customer —
+ * prevents the tool from doubling as a customer-existence oracle. The
+ * truthful "customer not found" outcome is preserved in `auditSummary` for
+ * operator review.
  */
-class ConfirmationStatus implements ToolInterface
+class ConfirmationStatus implements ToolInterface, UnderlyingAclAwareInterface
 {
     public const TOOL_NAME = 'customer.account.confirmation_status';
     public const ACL_RESOURCE = 'Magebit_McpCustomerTools::tool_customer_account_confirmation_status';
@@ -87,6 +94,14 @@ class ConfirmationStatus implements ToolInterface
     /**
      * @inheritDoc
      */
+    public function getUnderlyingAclResource(): ?string
+    {
+        return 'Magento_Customer::manage';
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getWriteMode(): WriteMode
     {
         return WriteMode::READ;
@@ -105,14 +120,24 @@ class ConfirmationStatus implements ToolInterface
      */
     public function execute(array $arguments): ToolResultInterface
     {
-        $customer = $this->entityFinder->customerFrom($arguments);
-        $customerId = (int) $customer->getId();
-
-        $status = $this->accountManagement->getConfirmationStatus($customerId);
+        try {
+            $customer = $this->entityFinder->customerFrom($arguments);
+            $customerId = (int) $customer->getId();
+            $email = (string) $customer->getEmail();
+            $status = $this->accountManagement->getConfirmationStatus($customerId);
+            $found = true;
+        } catch (LocalizedException) {
+            $customerId = 0;
+            $email = isset($arguments['email']) && is_string($arguments['email'])
+                ? $arguments['email']
+                : '';
+            $status = AccountManagementInterface::ACCOUNT_CONFIRMATION_REQUIRED;
+            $found = false;
+        }
 
         $payload = [
             'id' => $customerId,
-            'email' => (string) $customer->getEmail(),
+            'email' => $email,
             'status' => $status,
         ];
 
@@ -126,6 +151,7 @@ class ConfirmationStatus implements ToolInterface
             auditSummary: [
                 'id' => $customerId,
                 'status' => $status,
+                'customer_found' => $found,
             ]
         );
     }
