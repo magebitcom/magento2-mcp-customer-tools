@@ -10,6 +10,7 @@ namespace Magebit\McpCustomerTools\Tool\Customer\Customer;
 
 use Magebit\Mcp\Api\ToolInterface;
 use Magebit\Mcp\Api\ToolResultInterface;
+use Magebit\Mcp\Api\UnderlyingAclAwareInterface;
 use Magebit\Mcp\Model\Tool\Schema\Builder\ArrayBuilder;
 use Magebit\Mcp\Model\Tool\Schema\Builder\IntegerBuilder;
 use Magebit\Mcp\Model\Tool\Schema\Preset\Filters;
@@ -27,7 +28,7 @@ use Magento\Framework\Exception\LocalizedException;
  * Registered with a narrower resolver set than `customer.customer.get` —
  * addresses are too heavy to return on every row of a paged response.
  */
-class CustomerList implements ToolInterface
+class CustomerList implements ToolInterface, UnderlyingAclAwareInterface
 {
     public const TOOL_NAME = 'customer.customer.list';
     public const ACL_RESOURCE = 'Magebit_McpCustomerTools::tool_customer_customer_list';
@@ -110,6 +111,14 @@ class CustomerList implements ToolInterface
     public function getAclResource(): string
     {
         return self::ACL_RESOURCE;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getUnderlyingAclResource(): ?string
+    {
+        return 'Magento_Customer::manage';
     }
 
     /**

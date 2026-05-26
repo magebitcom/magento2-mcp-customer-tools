@@ -80,6 +80,47 @@ Callers narrow the payload per request:
 { "id": 42, "exclude": ["addresses", "profile"] }
 ```
 
+## Restricting the `custom_attributes` / `extension_attributes` payload
+
+`CustomAttributesResolver` and `ExtensionAttributesResolver` iterate the EAV
+custom-attributes bag and the typed extension-attributes bag respectively
+and emit every key by default. A small built-in blocklist
+(`password_hash`, `password`, `rp_token`, `rp_token_created_at`,
+`confirmation`, `failures_num`, `first_failure`, `lock_expires`) is always
+applied as a defense-in-depth backstop — Magento normally keeps these out
+of those channels, but the blocklist guards against a misconfigured EAV
+attribute or a 3rd-party extension attribute reusing one of those names.
+
+If your project attaches sensitive 3rd-party data through either channel
+(fraud_score, vip_tier, internal_notes, store_credit_balance,
+2fa_enrollment_flag, …), opt into a **strict allowlist** via `etc/di.xml`:
+
+```xml
+<type name="Magebit\McpCustomerTools\Model\FieldResolver\Customer\CustomAttributesResolver">
+    <arguments>
+        <argument name="allowedKeys" xsi:type="array">
+            <item name="0" xsi:type="string">loyalty_tier</item>
+            <item name="1" xsi:type="string">loyalty_points</item>
+            <item name="2" xsi:type="string">newsletter_opt_in</item>
+        </argument>
+    </arguments>
+</type>
+
+<type name="Magebit\McpCustomerTools\Model\FieldResolver\Customer\ExtensionAttributesResolver">
+    <arguments>
+        <argument name="allowedKeys" xsi:type="array">
+            <item name="0" xsi:type="string">is_subscribed</item>
+            <item name="1" xsi:type="string">company_attributes</item>
+        </argument>
+    </arguments>
+</type>
+```
+
+When `allowedKeys` is non-empty, the resolver emits ONLY those keys and the
+blocklist is irrelevant. When empty (the default), every key not in the
+blocklist passes through. To extend the blocklist without switching to a
+strict allowlist, override `blockedKeys` instead.
+
 ## Add a new filter to `customer.customer.list`
 
 Implement `CustomerFilterTranslatorInterface`:

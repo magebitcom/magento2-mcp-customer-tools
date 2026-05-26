@@ -10,6 +10,7 @@ namespace Magebit\McpCustomerTools\Tool\Customer\Address;
 
 use Magebit\Mcp\Api\ToolInterface;
 use Magebit\Mcp\Api\ToolResultInterface;
+use Magebit\Mcp\Api\UnderlyingAclAwareInterface;
 use Magebit\Mcp\Model\Tool\Schema\Builder\ArrayBuilder;
 use Magebit\Mcp\Model\Tool\Schema\Builder\IntegerBuilder;
 use Magebit\Mcp\Model\Tool\Schema\Schema;
@@ -20,7 +21,7 @@ use Magebit\McpCustomerTools\Api\AddressFieldResolverInterface;
 use Magebit\McpCustomerTools\Model\EntityFinder;
 use Magento\Framework\Exception\LocalizedException;
 
-class AddressGet implements ToolInterface
+class AddressGet implements ToolInterface, UnderlyingAclAwareInterface
 {
     public const TOOL_NAME = 'customer.address.get';
     public const ACL_RESOURCE = 'Magebit_McpCustomerTools::tool_customer_address_get';
@@ -84,6 +85,14 @@ class AddressGet implements ToolInterface
     public function getAclResource(): string
     {
         return self::ACL_RESOURCE;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getUnderlyingAclResource(): ?string
+    {
+        return 'Magento_Customer::manage';
     }
 
     /**
