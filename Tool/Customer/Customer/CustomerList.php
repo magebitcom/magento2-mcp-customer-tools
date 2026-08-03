@@ -83,11 +83,27 @@ class CustomerList implements ToolInterface, UnderlyingAclAwareInterface
     {
         return Schema::object()
             ->with(Filters::describing(
-                'Filter clauses. Built-in keys: email, '
-                . 'firstname, lastname, group_id, website_id, '
-                . 'store_id, created_at_from/_to, updated_at_from/_to, '
-                . 'dob_from/_to. Scalar or array (array ⇒ IN). '
-                . '`email` accepts `*glob*` for wildcard matches.'
+                'Filter clauses. Scalar or array (array ⇒ IN). `email` accepts '
+                . '`*glob*` for wildcard matches. `store_from_website_id` is an '
+                . 'escape hatch that expands a website id to its store-view ids.',
+                [
+                    'email' => ['type' => ['string', 'array'], 'description' => 'Email: exact, `*glob*` wildcard, or array ⇒ IN.'],
+                    'firstname' => ['type' => 'string', 'description' => 'Substring match on first name.'],
+                    'lastname' => ['type' => 'string', 'description' => 'Substring match on last name.'],
+                    'group_id' => ['type' => ['integer', 'array'], 'description' => 'Customer group id(s).'],
+                    'store_id' => ['type' => ['integer', 'array'], 'description' => 'Store view id(s) the account is bound to.'],
+                    'website_id' => ['type' => ['integer', 'array'], 'description' => 'Website id(s) (matched on the customer row).'],
+                    'store_from_website_id' => [
+                        'type' => ['integer', 'array'],
+                        'description' => 'Website id(s) expanded to their store-view ids, then matched on store_id.',
+                    ],
+                    'created_at_from' => ['type' => 'string', 'description' => 'Created ISO date/datetime lower bound.'],
+                    'created_at_to' => ['type' => 'string', 'description' => 'Created ISO date/datetime upper bound.'],
+                    'updated_at_from' => ['type' => 'string', 'description' => 'Updated ISO date/datetime lower bound.'],
+                    'updated_at_to' => ['type' => 'string', 'description' => 'Updated ISO date/datetime upper bound.'],
+                    'dob_from' => ['type' => 'string', 'description' => 'Date-of-birth lower bound (ISO date).'],
+                    'dob_to' => ['type' => 'string', 'description' => 'Date-of-birth upper bound (ISO date).'],
+                ]
             ))
             ->with(Sort::fields(CustomerSearchCriteriaBuilder::SORTABLE_FIELDS))
             ->integer('page', fn (IntegerBuilder $i) => $i->minimum(1))
