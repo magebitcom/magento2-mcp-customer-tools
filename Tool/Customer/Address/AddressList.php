@@ -76,9 +76,16 @@ class AddressList implements ToolInterface, UnderlyingAclAwareInterface
     {
         return Schema::object()
             ->with(Filters::describing(
-                'Filter clauses. Built-in keys: customer_id, country_id, '
-                . 'region_id, postcode (scalar or array ⇒ IN), city '
-                . 'substring, telephone substring.'
+                'Filter clauses. Scalar or array values (array ⇒ IN); '
+                . 'city/telephone are substring matches.',
+                [
+                    'customer_id' => ['type' => ['integer', 'array'], 'description' => 'Owning customer id(s).'],
+                    'country_id' => ['type' => ['string', 'array'], 'description' => 'ISO country code(s), e.g. "US".'],
+                    'region_id' => ['type' => ['integer', 'array'], 'description' => 'Region id(s).'],
+                    'postcode' => ['type' => ['string', 'array'], 'description' => 'Postal code(s).'],
+                    'city' => ['type' => 'string', 'description' => 'Substring match on city.'],
+                    'telephone' => ['type' => 'string', 'description' => 'Substring match on telephone.'],
+                ]
             ))
             ->with(Sort::fields(AddressSearchCriteriaBuilder::SORTABLE_FIELDS, 'id', 'asc'))
             ->integer('page', fn (IntegerBuilder $i) => $i->minimum(1))

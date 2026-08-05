@@ -75,8 +75,11 @@ class GroupList implements ToolInterface, UnderlyingAclAwareInterface
     {
         return Schema::object()
             ->with(Filters::describing(
-                'Filter clauses. Built-in keys: code (exact, IN, or `*glob*`), '
-                . 'tax_class_id (scalar or array ⇒ IN).'
+                'Filter clauses. Scalar or array values (array ⇒ IN).',
+                [
+                    'code' => ['type' => ['string', 'array'], 'description' => 'Group code: exact, `*glob*` wildcard, or array ⇒ IN.'],
+                    'tax_class_id' => ['type' => ['integer', 'array'], 'description' => 'Tax class id(s).'],
+                ]
             ))
             ->with(Sort::fields(GroupSearchCriteriaBuilder::SORTABLE_FIELDS, 'id', 'asc'))
             ->integer('page', fn (IntegerBuilder $i) => $i->minimum(1))
