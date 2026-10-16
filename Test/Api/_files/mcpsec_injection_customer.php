@@ -19,11 +19,15 @@ use Magento\TestFramework\Helper\Bootstrap;
 require __DIR__ . '/mcpsec_injection_customer_rollback.php';
 
 $om = Bootstrap::getObjectManager();
-$customer = $om->get(CustomerInterfaceFactory::class)->create();
+/** @var CustomerInterfaceFactory $customerFactory */
+$customerFactory = $om->get(CustomerInterfaceFactory::class);
+$customer = $customerFactory->create();
 $customer->setWebsiteId(1)
     ->setStoreId(1)
     ->setGroupId(1)
     ->setEmail(InjectionPayload::CUSTOMER_EMAIL)
     ->setFirstname('Mcpsec')
     ->setLastname(InjectionPayload::NAME_TEXT);
-$om->get(CustomerRepositoryInterface::class)->save($customer);
+/** @var CustomerRepositoryInterface $customerRepository */
+$customerRepository = $om->get(CustomerRepositoryInterface::class);
+$customerRepository->save($customer);
