@@ -72,7 +72,7 @@ class CustomerList implements ToolInterface, UnderlyingAclAwareInterface
             . 'firstname/lastname substring, group_id, website_id, store_id, '
             . 'created_at range, updated_at range, dob range) and paging. '
             . 'Each row is composed from the same field resolvers as '
-            . '`customer.customer.get` with a narrower default set '
+            . '`customer_customer_get` with a narrower default set '
             . '(addresses omitted); use `fields`/`exclude` to adjust.';
     }
 

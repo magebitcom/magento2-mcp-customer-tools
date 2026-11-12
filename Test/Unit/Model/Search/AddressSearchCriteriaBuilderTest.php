@@ -43,21 +43,45 @@ class AddressSearchCriteriaBuilderTest extends TestCase
             ->willReturn($this->createStub(SearchCriteriaInterface::class));
     }
 
-    public function testDefaultSortIsIdAsc(): void
+    public function testDefaultSortIsIdAscOnEntityId(): void
     {
-        $this->sortBuilder->expects($this->once())->method('setField')->with('id');
+        $this->sortBuilder->expects($this->once())->method('setField')->with('entity_id');
         $this->sortBuilder->expects($this->once())->method('setDirection')->with(SortOrder::SORT_ASC);
 
         $this->builder()->build([]);
     }
 
-    public function testCustomerIdAddsEqualsFilter(): void
+    public function testCustomerIdAddsEqualsFilterOnParentId(): void
     {
         $this->criteriaBuilder->expects($this->atLeastOnce())
             ->method('addFilter')
-            ->with('customer_id', 7);
+            ->with('parent_id', 7);
 
         $this->builder()->build(['filters' => ['customer_id' => 7]]);
+    }
+
+    public function testCustomerIdArrayAddsInFilterOnParentId(): void
+    {
+        $this->criteriaBuilder->expects($this->atLeastOnce())
+            ->method('addFilter')
+            ->with('parent_id', $this->equalTo([7, 8]), 'in');
+
+        $this->builder()->build(['filters' => ['customer_id' => [7, 8]]]);
+    }
+
+    public function testSortByCustomerIdSortsOnParentId(): void
+    {
+        $this->sortBuilder->expects($this->once())->method('setField')->with('parent_id');
+        $this->sortBuilder->expects($this->once())->method('setDirection')->with(SortOrder::SORT_DESC);
+
+        $this->builder()->build(['sort_by' => 'customer_id', 'sort_dir' => 'desc']);
+    }
+
+    public function testSortByCountryIdKeepsTheFieldName(): void
+    {
+        $this->sortBuilder->expects($this->once())->method('setField')->with('country_id');
+
+        $this->builder()->build(['sort_by' => 'country_id']);
     }
 
     public function testCountryIdArrayAddsInFilter(): void

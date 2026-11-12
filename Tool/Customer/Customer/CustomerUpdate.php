@@ -65,7 +65,7 @@ class CustomerUpdate implements ToolInterface, UnderlyingAclAwareInterface
         return 'Partial update of a customer. Identify by `id` or `email` '
             . '(+ optional `website_id` for email lookup in per-website '
             . 'account scope). Only fields you provide are changed. '
-            . 'Use `customer.account.reset_password` to change passwords.';
+            . 'Use `customer_account_reset_password` to change passwords.';
     }
 
     /**

@@ -17,6 +17,7 @@ use Magebit\Mcp\Model\Tool\Schema\Schema;
 use Magebit\Mcp\Model\Tool\ToolResult;
 use Magebit\Mcp\Model\Tool\WriteMode;
 use Magebit\McpCustomerTools\Model\EntityFinder;
+use Magebit\McpCustomerTools\Model\SecureAreaScope;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
 
@@ -33,10 +34,12 @@ class CustomerDelete implements ToolInterface, UnderlyingAclAwareInterface
     /**
      * @param EntityFinder $entityFinder
      * @param CustomerRepositoryInterface $customerRepository
+     * @param SecureAreaScope $secureAreaScope
      */
     public function __construct(
         private readonly EntityFinder $entityFinder,
-        private readonly CustomerRepositoryInterface $customerRepository
+        private readonly CustomerRepositoryInterface $customerRepository,
+        private readonly SecureAreaScope $secureAreaScope
     ) {
     }
 
@@ -118,7 +121,9 @@ class CustomerDelete implements ToolInterface, UnderlyingAclAwareInterface
         $customerId = (int) $customer->getId();
         $email = (string) $customer->getEmail();
 
-        $deleted = $this->customerRepository->delete($customer);
+        $deleted = $this->secureAreaScope->run(
+            fn () => $this->customerRepository->delete($customer)
+        );
 
         $payload = [
             'deleted' => (bool) $deleted,
