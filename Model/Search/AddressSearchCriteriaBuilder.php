@@ -36,6 +36,18 @@ class AddressSearchCriteriaBuilder
     ];
 
     /**
+     * Public keys whose address collection column has another name. The EAV
+     * collection rejects `customer_id` in a filter and ignores unknown sort
+     * fields, so these must be mapped before they reach the repository.
+     *
+     * @var array<string, string>
+     */
+    private const COLLECTION_FIELDS = [
+        AddressInterface::ID => 'entity_id',
+        AddressInterface::CUSTOMER_ID => 'parent_id',
+    ];
+
+    /**
      * @param SearchCriteriaBuilder $criteriaBuilder
      * @param SortOrderBuilder $sortBuilder
      * @param AddressFilterTranslatorInterface[] $filterTranslators
@@ -135,13 +147,13 @@ class AddressSearchCriteriaBuilder
             if ($list === []) {
                 return;
             }
-            $this->criteriaBuilder->addFilter($field, $list, 'in');
+            $this->criteriaBuilder->addFilter($this->collectionField($field), $list, 'in');
             return;
         }
         if (!is_scalar($value) || (string) $value === '') {
             throw new LocalizedException(__('Filter "%1" requires a non-empty value.', $field));
         }
-        $this->criteriaBuilder->addFilter($field, $value);
+        $this->criteriaBuilder->addFilter($this->collectionField($field), $value);
     }
 
     /**
@@ -169,9 +181,18 @@ class AddressSearchCriteriaBuilder
             throw new LocalizedException(__('"sort_dir" must be "asc" or "desc".'));
         }
 
-        $this->sortBuilder->setField($sortBy);
+        $this->sortBuilder->setField($this->collectionField($sortBy));
         $this->sortBuilder->setDirection($dir === 'asc' ? SortOrder::SORT_ASC : SortOrder::SORT_DESC);
         $this->criteriaBuilder->addSortOrder($this->sortBuilder->create());
+    }
+
+    /**
+     * @param string $field
+     * @return string
+     */
+    private function collectionField(string $field): string
+    {
+        return self::COLLECTION_FIELDS[$field] ?? $field;
     }
 
     /**
