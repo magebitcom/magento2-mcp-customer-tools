@@ -21,9 +21,9 @@ class AddressListTest extends TestCase
     protected function setUp(): void
     {
         $this->tool = new AddressList(
-            $this->createMock(AddressRepositoryInterface::class),
-            $this->createMock(AddressSearchCriteriaBuilder::class),
-            $this->createMock(ResolverPipeline::class),
+            $this->createStub(AddressRepositoryInterface::class),
+            $this->createStub(AddressSearchCriteriaBuilder::class),
+            $this->createStub(ResolverPipeline::class),
             []
         );
     }

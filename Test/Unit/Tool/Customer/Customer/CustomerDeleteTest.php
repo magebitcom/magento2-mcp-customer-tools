@@ -22,7 +22,7 @@ class CustomerDeleteTest extends TestCase
     public function testDeleteRunsInsideTheSecureAreaAndClearsItAfter(): void
     {
         $registry = new Registry();
-        $customer = $this->createMock(CustomerInterface::class);
+        $customer = $this->createStub(CustomerInterface::class);
         $customer->method('getId')->willReturn(42);
         $customer->method('getEmail')->willReturn('jane@example.com');
 
@@ -54,8 +54,8 @@ class CustomerDeleteTest extends TestCase
     public function testDeleteRequiresConfirmation(): void
     {
         $tool = new CustomerDelete(
-            $this->createMock(EntityFinder::class),
-            $this->createMock(CustomerRepositoryInterface::class),
+            $this->createStub(EntityFinder::class),
+            $this->createStub(CustomerRepositoryInterface::class),
             new SecureAreaScope(new Registry())
         );
 

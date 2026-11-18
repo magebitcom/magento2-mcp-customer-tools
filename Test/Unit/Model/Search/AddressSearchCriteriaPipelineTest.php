@@ -18,7 +18,6 @@ use Magento\Framework\Api\SearchCriteria\CollectionProcessor\SortingProcessor;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Api\SortOrderBuilder;
 use Magento\Framework\ObjectManagerInterface;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -34,13 +33,13 @@ class AddressSearchCriteriaPipelineTest extends TestCase
     /** @var array<int, array{string, string}> */
     private array $orders = [];
 
-    private Collection&MockObject $collection;
+    private Collection $collection;
 
     private AddressSearchCriteriaBuilder $builder;
 
     protected function setUp(): void
     {
-        $objectManager = $this->createMock(ObjectManagerInterface::class);
+        $objectManager = $this->createStub(ObjectManagerInterface::class);
         $objectManager->method('create')->willReturnCallback(
             static function (string $type, array $arguments = []): object {
                 return new $type($arguments['data'] ?? []);
@@ -53,7 +52,7 @@ class AddressSearchCriteriaPipelineTest extends TestCase
             new SortOrderBuilder($factory)
         );
 
-        $this->collection = $this->createMock(Collection::class);
+        $this->collection = $this->createStub(Collection::class);
         $this->collection->method('addFieldToFilter')->willReturnCallback(function (mixed $fields) {
             $this->filters[] = $fields;
             return $this->collection;

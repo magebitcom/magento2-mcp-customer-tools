@@ -21,9 +21,9 @@ class CustomerListTest extends TestCase
     protected function setUp(): void
     {
         $this->tool = new CustomerList(
-            $this->createMock(CustomerRepositoryInterface::class),
-            $this->createMock(CustomerSearchCriteriaBuilder::class),
-            $this->createMock(ResolverPipeline::class),
+            $this->createStub(CustomerRepositoryInterface::class),
+            $this->createStub(CustomerSearchCriteriaBuilder::class),
+            $this->createStub(ResolverPipeline::class),
             []
         );
     }

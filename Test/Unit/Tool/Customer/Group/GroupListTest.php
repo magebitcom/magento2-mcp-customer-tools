@@ -21,9 +21,9 @@ class GroupListTest extends TestCase
     protected function setUp(): void
     {
         $this->tool = new GroupList(
-            $this->createMock(GroupRepositoryInterface::class),
-            $this->createMock(GroupSearchCriteriaBuilder::class),
-            $this->createMock(ResolverPipeline::class),
+            $this->createStub(GroupRepositoryInterface::class),
+            $this->createStub(GroupSearchCriteriaBuilder::class),
+            $this->createStub(ResolverPipeline::class),
             []
         );
     }

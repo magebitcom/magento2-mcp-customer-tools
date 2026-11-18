@@ -16,39 +16,30 @@ use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Api\SortOrderBuilder;
 use Magento\Framework\Exception\LocalizedException;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class CustomerSearchCriteriaBuilderTest extends TestCase
 {
-    private SearchCriteriaBuilder&MockObject $criteriaBuilder;
+    private SearchCriteriaBuilder $criteriaBuilder;
 
-    private SortOrderBuilder&MockObject $sortBuilder;
+    private SortOrderBuilder $sortBuilder;
 
-    private SortOrder&MockObject $sortOrder;
+    private SortOrder $sortOrder;
 
-    private WebsiteStoreResolver&MockObject $websiteStoreResolver;
+    private WebsiteStoreResolver $websiteStoreResolver;
 
     protected function setUp(): void
     {
-        $this->criteriaBuilder = $this->createMock(SearchCriteriaBuilder::class);
-        $this->sortBuilder = $this->createMock(SortOrderBuilder::class);
-        $this->sortOrder = $this->createMock(SortOrder::class);
-        $this->websiteStoreResolver = $this->createMock(WebsiteStoreResolver::class);
-        $this->sortBuilder->method('setField')->willReturnSelf();
-        $this->sortBuilder->method('setDirection')->willReturnSelf();
-        $this->sortBuilder->method('create')->willReturn($this->sortOrder);
-
-        $this->criteriaBuilder->method('addFilter')->willReturnSelf();
-        $this->criteriaBuilder->method('addSortOrder')->willReturnSelf();
-        $this->criteriaBuilder->method('setCurrentPage')->willReturnSelf();
-        $this->criteriaBuilder->method('setPageSize')->willReturnSelf();
-        $this->criteriaBuilder->method('create')
-            ->willReturn($this->createStub(SearchCriteriaInterface::class));
+        $this->criteriaBuilder = $this->createCriteriaBuilder();
+        $this->sortOrder = $this->createStub(SortOrder::class);
+        $this->sortBuilder = $this->createSortBuilder();
+        $this->websiteStoreResolver = $this->createStub(WebsiteStoreResolver::class);
     }
 
     public function testDefaultSortIsCreatedAtDesc(): void
     {
+        $this->sortBuilder = $this->createSortBuilder(true);
+
         $this->sortBuilder->expects($this->once())->method('setField')->with('created_at');
         $this->sortBuilder->expects($this->once())->method('setDirection')->with(SortOrder::SORT_DESC);
 
@@ -57,6 +48,8 @@ class CustomerSearchCriteriaBuilderTest extends TestCase
 
     public function testSortByIdMapsToEntityIdColumn(): void
     {
+        $this->sortBuilder = $this->createSortBuilder(true);
+
         $this->sortBuilder->expects($this->once())->method('setField')->with('entity_id');
         $this->sortBuilder->expects($this->once())->method('setDirection')->with(SortOrder::SORT_DESC);
 
@@ -65,6 +58,8 @@ class CustomerSearchCriteriaBuilderTest extends TestCase
 
     public function testSortByIdAscMapsToEntityIdColumn(): void
     {
+        $this->sortBuilder = $this->createSortBuilder(true);
+
         $this->sortBuilder->expects($this->once())->method('setField')->with('entity_id');
         $this->sortBuilder->expects($this->once())->method('setDirection')->with(SortOrder::SORT_ASC);
 
@@ -73,6 +68,8 @@ class CustomerSearchCriteriaBuilderTest extends TestCase
 
     public function testSortByEmailPassesThroughUnchanged(): void
     {
+        $this->sortBuilder = $this->createSortBuilder(true);
+
         $this->sortBuilder->expects($this->once())->method('setField')->with('email');
         $this->sortBuilder->expects($this->once())->method('setDirection')->with(SortOrder::SORT_ASC);
 
@@ -81,6 +78,8 @@ class CustomerSearchCriteriaBuilderTest extends TestCase
 
     public function testExactEmailAddsEqualsFilter(): void
     {
+        $this->criteriaBuilder = $this->createCriteriaBuilder(true);
+
         $this->criteriaBuilder->expects($this->atLeastOnce())
             ->method('addFilter')
             ->with($this->equalTo('email'), $this->equalTo('alice@example.com'));
@@ -90,6 +89,8 @@ class CustomerSearchCriteriaBuilderTest extends TestCase
 
     public function testGlobEmailAddsLikeFilter(): void
     {
+        $this->criteriaBuilder = $this->createCriteriaBuilder(true);
+
         $calls = [];
         $this->criteriaBuilder->expects($this->atLeastOnce())
             ->method('addFilter')
@@ -105,6 +106,8 @@ class CustomerSearchCriteriaBuilderTest extends TestCase
 
     public function testArrayEmailAddsInFilter(): void
     {
+        $this->criteriaBuilder = $this->createCriteriaBuilder(true);
+
         $this->criteriaBuilder->expects($this->atLeastOnce())
             ->method('addFilter')
             ->with('email', $this->equalTo(['a@x.com', 'b@y.com']), 'in');
@@ -114,6 +117,8 @@ class CustomerSearchCriteriaBuilderTest extends TestCase
 
     public function testFirstnameAddsWildcardLikeFilter(): void
     {
+        $this->criteriaBuilder = $this->createCriteriaBuilder(true);
+
         $calls = [];
         $this->criteriaBuilder->expects($this->atLeastOnce())
             ->method('addFilter')
@@ -129,6 +134,8 @@ class CustomerSearchCriteriaBuilderTest extends TestCase
 
     public function testGroupIdScalarEqualsFilter(): void
     {
+        $this->criteriaBuilder = $this->createCriteriaBuilder(true);
+
         $this->criteriaBuilder->expects($this->atLeastOnce())
             ->method('addFilter')
             ->with('group_id', 3);
@@ -138,6 +145,8 @@ class CustomerSearchCriteriaBuilderTest extends TestCase
 
     public function testWebsiteIdEqualsFilter(): void
     {
+        $this->criteriaBuilder = $this->createCriteriaBuilder(true);
+
         // `website_id` is a real column on customer — no expansion through
         // the resolver; scalar goes to an equals filter.
         $this->criteriaBuilder->expects($this->atLeastOnce())
@@ -149,6 +158,9 @@ class CustomerSearchCriteriaBuilderTest extends TestCase
 
     public function testStoreFromWebsiteIdExpandsViaResolver(): void
     {
+        $this->criteriaBuilder = $this->createCriteriaBuilder(true);
+        $this->websiteStoreResolver = $this->createMock(WebsiteStoreResolver::class);
+
         $this->websiteStoreResolver->expects($this->once())
             ->method('resolveStoreIds')
             ->with(2)
@@ -163,6 +175,8 @@ class CustomerSearchCriteriaBuilderTest extends TestCase
 
     public function testCreatedAtRangeSplitsIntoTwoFilters(): void
     {
+        $this->criteriaBuilder = $this->createCriteriaBuilder(true);
+
         $calls = [];
         $this->criteriaBuilder->expects($this->atLeast(2))
             ->method('addFilter')
@@ -184,6 +198,8 @@ class CustomerSearchCriteriaBuilderTest extends TestCase
 
     public function testPageSizeCapsAtMax(): void
     {
+        $this->criteriaBuilder = $this->createCriteriaBuilder(true);
+
         $this->criteriaBuilder->expects($this->once())
             ->method('setPageSize')
             ->with(CustomerSearchCriteriaBuilder::MAX_PAGE_SIZE);
@@ -193,6 +209,8 @@ class CustomerSearchCriteriaBuilderTest extends TestCase
 
     public function testPageDefaultsToOne(): void
     {
+        $this->criteriaBuilder = $this->createCriteriaBuilder(true);
+
         $this->criteriaBuilder->expects($this->once())
             ->method('setCurrentPage')
             ->with(1);
@@ -248,6 +266,39 @@ class CustomerSearchCriteriaBuilderTest extends TestCase
         $this->expectExceptionMessageMatches('/Filter payload must be an object/');
 
         $this->builder()->build(['filters' => 'email=alice']);
+    }
+
+    /**
+     * Create a search builder double.
+     *
+     * @param bool $mock
+     * @return ($mock is true ? SearchCriteriaBuilder&\PHPUnit\Framework\MockObject\MockObject : SearchCriteriaBuilder&\PHPUnit\Framework\MockObject\Stub)
+     */
+    private function createCriteriaBuilder(bool $mock = false): SearchCriteriaBuilder
+    {
+        $builder = $mock ? $this->createMock(SearchCriteriaBuilder::class) : $this->createStub(SearchCriteriaBuilder::class);
+        $builder->method('addFilter')->willReturnSelf();
+        $builder->method('addSortOrder')->willReturnSelf();
+        $builder->method('setCurrentPage')->willReturnSelf();
+        $builder->method('setPageSize')->willReturnSelf();
+        $builder->method('create')
+            ->willReturn($this->createStub(SearchCriteriaInterface::class));
+        return $builder;
+    }
+
+    /**
+     * Create a search builder double.
+     *
+     * @param bool $mock
+     * @return ($mock is true ? SortOrderBuilder&\PHPUnit\Framework\MockObject\MockObject : SortOrderBuilder&\PHPUnit\Framework\MockObject\Stub)
+     */
+    private function createSortBuilder(bool $mock = false): SortOrderBuilder
+    {
+        $builder = $mock ? $this->createMock(SortOrderBuilder::class) : $this->createStub(SortOrderBuilder::class);
+        $builder->method('setField')->willReturnSelf();
+        $builder->method('setDirection')->willReturnSelf();
+        $builder->method('create')->willReturn($this->sortOrder);
+        return $builder;
     }
 
     private function builder(): CustomerSearchCriteriaBuilder

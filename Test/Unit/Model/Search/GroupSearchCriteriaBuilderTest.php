@@ -15,36 +15,27 @@ use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Api\SortOrderBuilder;
 use Magento\Framework\Exception\LocalizedException;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class GroupSearchCriteriaBuilderTest extends TestCase
 {
-    private SearchCriteriaBuilder&MockObject $criteriaBuilder;
+    private SearchCriteriaBuilder $criteriaBuilder;
 
-    private SortOrderBuilder&MockObject $sortBuilder;
+    private SortOrderBuilder $sortBuilder;
 
-    private SortOrder&MockObject $sortOrder;
+    private SortOrder $sortOrder;
 
     protected function setUp(): void
     {
-        $this->criteriaBuilder = $this->createMock(SearchCriteriaBuilder::class);
-        $this->sortBuilder = $this->createMock(SortOrderBuilder::class);
-        $this->sortOrder = $this->createMock(SortOrder::class);
-        $this->sortBuilder->method('setField')->willReturnSelf();
-        $this->sortBuilder->method('setDirection')->willReturnSelf();
-        $this->sortBuilder->method('create')->willReturn($this->sortOrder);
-
-        $this->criteriaBuilder->method('addFilter')->willReturnSelf();
-        $this->criteriaBuilder->method('addSortOrder')->willReturnSelf();
-        $this->criteriaBuilder->method('setCurrentPage')->willReturnSelf();
-        $this->criteriaBuilder->method('setPageSize')->willReturnSelf();
-        $this->criteriaBuilder->method('create')
-            ->willReturn($this->createStub(SearchCriteriaInterface::class));
+        $this->criteriaBuilder = $this->createCriteriaBuilder();
+        $this->sortOrder = $this->createStub(SortOrder::class);
+        $this->sortBuilder = $this->createSortBuilder();
     }
 
     public function testDefaultSortIsIdAsc(): void
     {
+        $this->sortBuilder = $this->createSortBuilder(true);
+
         $this->sortBuilder->expects($this->once())->method('setField')->with('id');
         $this->sortBuilder->expects($this->once())->method('setDirection')->with(SortOrder::SORT_ASC);
 
@@ -53,6 +44,8 @@ class GroupSearchCriteriaBuilderTest extends TestCase
 
     public function testExactCodeAddsEqualsFilter(): void
     {
+        $this->criteriaBuilder = $this->createCriteriaBuilder(true);
+
         $this->criteriaBuilder->expects($this->atLeastOnce())
             ->method('addFilter')
             ->with($this->equalTo('code'), $this->equalTo('General'));
@@ -62,6 +55,8 @@ class GroupSearchCriteriaBuilderTest extends TestCase
 
     public function testGlobCodeAddsLikeFilter(): void
     {
+        $this->criteriaBuilder = $this->createCriteriaBuilder(true);
+
         $calls = [];
         $this->criteriaBuilder->expects($this->atLeastOnce())
             ->method('addFilter')
@@ -77,6 +72,8 @@ class GroupSearchCriteriaBuilderTest extends TestCase
 
     public function testTaxClassIdArrayAddsInFilter(): void
     {
+        $this->criteriaBuilder = $this->createCriteriaBuilder(true);
+
         $this->criteriaBuilder->expects($this->atLeastOnce())
             ->method('addFilter')
             ->with('tax_class_id', $this->equalTo([2, 5]), 'in');
@@ -107,6 +104,39 @@ class GroupSearchCriteriaBuilderTest extends TestCase
         );
 
         $sut->build(['filters' => ['custom_attr' => 'val']]);
+    }
+
+    /**
+     * Create a search builder double.
+     *
+     * @param bool $mock
+     * @return ($mock is true ? SearchCriteriaBuilder&\PHPUnit\Framework\MockObject\MockObject : SearchCriteriaBuilder&\PHPUnit\Framework\MockObject\Stub)
+     */
+    private function createCriteriaBuilder(bool $mock = false): SearchCriteriaBuilder
+    {
+        $builder = $mock ? $this->createMock(SearchCriteriaBuilder::class) : $this->createStub(SearchCriteriaBuilder::class);
+        $builder->method('addFilter')->willReturnSelf();
+        $builder->method('addSortOrder')->willReturnSelf();
+        $builder->method('setCurrentPage')->willReturnSelf();
+        $builder->method('setPageSize')->willReturnSelf();
+        $builder->method('create')
+            ->willReturn($this->createStub(SearchCriteriaInterface::class));
+        return $builder;
+    }
+
+    /**
+     * Create a search builder double.
+     *
+     * @param bool $mock
+     * @return ($mock is true ? SortOrderBuilder&\PHPUnit\Framework\MockObject\MockObject : SortOrderBuilder&\PHPUnit\Framework\MockObject\Stub)
+     */
+    private function createSortBuilder(bool $mock = false): SortOrderBuilder
+    {
+        $builder = $mock ? $this->createMock(SortOrderBuilder::class) : $this->createStub(SortOrderBuilder::class);
+        $builder->method('setField')->willReturnSelf();
+        $builder->method('setDirection')->willReturnSelf();
+        $builder->method('create')->willReturn($this->sortOrder);
+        return $builder;
     }
 
     private function builder(): GroupSearchCriteriaBuilder
